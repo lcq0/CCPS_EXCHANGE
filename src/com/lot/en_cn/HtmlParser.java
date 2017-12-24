@@ -3,10 +3,14 @@ package com.lot.en_cn;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +24,7 @@ import com.lot.util.HtmlEncoding;
 public class HtmlParser {
 	
 	/**
-	 * 将HTML内容转成中文
+	 * 将HTML内容转成中文，字符串以换行符间隔
 	 * @param content
 	 * @return
 	 */
@@ -61,7 +65,7 @@ public class HtmlParser {
 	 * @param path
 	 * @param append
 	 */
-	public void WriteToFile(String str,String path,boolean append) {
+	public void WriteToFile(String str,String path,boolean append,String encoding) {
 		try {
 			FileWriter writer = new FileWriter(path, append);
 			BufferedWriter bw = new BufferedWriter(writer);
@@ -74,23 +78,24 @@ public class HtmlParser {
 //			BufferedWriter bw = new BufferedWriter(oStreamWriter);
 //			bw.write(str);
 //			bw.close();
-//			oStreamWriter.close();
-//			outputStream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * 读取文件
+	 * 读取文件，返回字符串
 	 * @param path
 	 * @return
 	 */
-	public String ReadFile(String path) {
+	public String ReadFile(String path,String encoding) {
 		StringBuffer strbuf = new StringBuffer();
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(path));
+//			BufferedReader reader = new BufferedReader(new FileReader(path));
+			FileInputStream inputStream = new FileInputStream(new File(path));
+			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, encoding);
+			BufferedReader reader = new BufferedReader(inputStreamReader);
 			String str = null;
 			while ((str=reader.readLine())!=null) {
 				strbuf.append(System.lineSeparator()+str);
@@ -104,4 +109,44 @@ public class HtmlParser {
 		
 		return strbuf.toString();
 	}
+	
+	/**
+	 * 将文本内容转成map
+	 * 内容：
+	 * key1=value1
+	 * key2=value2
+	 * @param path
+	 * @return
+	 */
+	public Map<String, String> getMap(String path,String encoding) {
+		StringBuffer strBuffer = new StringBuffer();
+		Map<String, String> result_map = new HashMap<>();
+		try {
+			FileInputStream inputStream = new FileInputStream(new File(path));
+			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, encoding);
+			BufferedReader reader = new BufferedReader(inputStreamReader);
+			String str=null;
+			while ((str=reader.readLine())!=null) {
+				strBuffer.append(str+"+");
+			}
+			String  temp_str = strBuffer.toString().trim();
+			String[] array_str = temp_str.split("[+]");
+			for (String string : array_str) {
+				String[] temp_str1 = string.replaceAll(" ", "").split("=");
+				if (temp_str1!=null&&temp_str1.length>1) {
+					result_map.put(temp_str1[0], temp_str1[1]);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result_map;
+	}
+	
 }
+
+
+
+
+
+
