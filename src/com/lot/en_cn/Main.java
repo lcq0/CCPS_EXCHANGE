@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.lot.util.HtmlEncoding;
+import com.lot.util.MapSortDemo;
 
 /**
  * @author lcq
@@ -16,9 +17,10 @@ import com.lot.util.HtmlEncoding;
 public class Main {
 	
 	private static HtmlParser parser = new HtmlParser();
-	private static String html_path = "F:\\parse\\en";
-	private static String file_type = ".txt";
-	private static String txt_path = "F:\\parse\\cn.txt";
+	private static String html_path = "E:\\developmentDoc\\20171213\\20171213\\Systemdemo";
+	private static String file_txt = ".txt";
+	private static String file_html = ".html";
+	private static String txt_path = "E:\\developmentDoc\\20171213\\20171213\\cn\\cn.txt";
 	
 	public static void main(String[] args) {
 		
@@ -35,15 +37,21 @@ public class Main {
 	 * 替换文件内容
 	 */
 	private static void ParseCN_EN() {
-		Map<String, String> map = parser.getMap(txt_path,HtmlEncoding.gbk_encoding);
-		List<String> pathList = parser.getPathList(html_path, file_type);
+//		Map<String, String> map = parser.getMap(txt_path,HtmlEncoding.utf8_encoding);
+//		Map<String, String> sortedMap = parser.sortMapByKey(map);
+//		Map<String, String> sortedMap = MapSortDemo.sortMapByKey(map);
+		Object[] sortedMaplist = parser.getMapObjects(txt_path, HtmlEncoding.utf8_encoding);
+		List<String> pathList = parser.getPathList(html_path, file_html);
 		int len = pathList.size();
 		for (int i = 0; i < len; i++) {
 			String path = pathList.get(i);
 			String temp_str = parser.ReadFile(path,HtmlEncoding.utf8_encoding);
-			for (String key : map.keySet()) {
-				if (temp_str.contains(key)) {
-					temp_str = temp_str.replaceAll(key, map.get(key));
+			for (int j = 0; j < sortedMaplist.length; j++) {
+				Map<String, String> tMap = (Map<String, String>) sortedMaplist[j];
+				for (String key : tMap.keySet()) {
+					if (temp_str.contains(key)) {
+						temp_str = temp_str.replaceAll(key, tMap.get(key));
+					}
 				}
 			}
 			temp_str = temp_str.trim();
